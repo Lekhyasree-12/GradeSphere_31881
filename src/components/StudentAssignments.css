@@ -1,0 +1,124 @@
+.assignments-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #ffffff; /* Ensuring main background is white */
+}
+
+/* Page Header - Using Dark Teal text */
+.page-header h1 { 
+  font-size: 28px; 
+  margin-bottom: 4px; 
+  color: #0B2E33; /* Darkest teal from image */
+}
+.page-header p { 
+  color: #93B1B5; /* Muted teal-gray from image */
+  margin-bottom: 32px; 
+}
+
+/* Search and Filters */
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+  border: 1px solid #c9cebd; /* Sage-toned border */
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.filter-buttons button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #c9cebd;
+  background: white;
+  cursor: pointer;
+  font-weight: 500;
+  color: #5c6352; /* Deep olive from sage palette */
+}
+
+.filter-buttons button.active {
+  background: #4b6331; /* Dark sage from your sidebar choice */
+  color: white;
+  border-color: #4b6331;
+}
+
+/* Stats Summary Cards - Using the Winter Chill palette for card themes */
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.summary-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+}
+
+.summary-card h3 { font-size: 24px; margin-bottom: 4px; }
+
+/* Teal/Sage variations of the stats */
+.summary-card.blue { background: #B8E3E9; border-color: #93B1B5; color: #0B2E33; }
+.summary-card.orange { background: #f1f2e9; border-color: #c9cebd; color: #5c6352; }
+.summary-card.green { background: #e8eee8; border-color: #afb7a1; color: #2d3b2d; }
+.summary-card.red { background: #fef2f2; border-color: #fee2e2; color: #991b1b; }
+
+/* Assignment Item Cards */
+.assignment-detail-card {
+  background: white;
+  border: 1px solid #c9cebd; /* Sage border for white cards */
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle depth on white */
+}
+
+/* Status Badges */
+.badge.pending { background: #f1f2e9; color: #5c6352; }
+.badge.submitted { background: #e8eee8; color: #2d3b2d; }
+.badge.overdue { background: #fee2e2; color: #991b1b; }
+
+.description { color: #5c6352; margin: 12px 0; font-size: 15px; }
+
+.metadata { color: #93B1B5; }
+
+.card-footer {
+  border-top: 1px solid #f1f2e9;
+}
+
+/* Primary Action: Teal/Sage buttons */
+.btn-primary {
+  background: #4b6331; /* Consistent with your sidebar green */
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-secondary {
+  background: #4F7C82; /* Muted teal from Winter Chill palette */
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 10px;
+  font-weight: 600;
+}
+
+.brand-logo-img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #B8E3E9; /* Background for logo to stand out */
+  padding: 4px;
+}
