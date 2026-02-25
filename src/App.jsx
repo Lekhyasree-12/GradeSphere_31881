@@ -2,10 +2,10 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import StudentDashboard from "./components/StudentDashboard";
 import TeacherDashboard from "./components/TeacherDashboard";
-import "./index.css";
-function App() {
+import AdminDashboard from "./components/AdminDashboard";
 
-  const loggedInUser = localStorage.getItem("loggedInUser");
+function App() {
+  const role = localStorage.getItem("role");
 
   return (
     <Routes>
@@ -13,12 +13,23 @@ function App() {
 
       <Route
         path="/student"
-        element={loggedInUser ? <StudentDashboard /> : <Navigate to="/" />}
+        element={
+          role === "student" ? <StudentDashboard /> : <Navigate to="/" />
+        }
       />
 
       <Route
         path="/teacher"
-        element={loggedInUser ? <TeacherDashboard /> : <Navigate to="/" />}
+        element={
+          role === "teacher" ? <TeacherDashboard /> : <Navigate to="/" />
+        }
+      />
+
+      <Route
+        path="/admin"
+        element={
+          role === "admin" ? <AdminDashboard /> : <Navigate to="/" />
+        }
       />
     </Routes>
   );

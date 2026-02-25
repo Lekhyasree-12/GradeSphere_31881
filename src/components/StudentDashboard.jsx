@@ -8,6 +8,7 @@ import "./StudentDashboard.css";
 function StudentDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [assignments, setAssignments] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const navigate = useNavigate();
   const studentEmail = localStorage.getItem("loggedInUser");
 // Get all grades for this student
@@ -24,9 +25,22 @@ const average =
           studentGrades.length
       )
     : 0;
+    useEffect(() => {
+  const storedSubjects = JSON.parse(localStorage.getItem("subjects")) || [];
+  setSubjects(storedSubjects);
+}, []);
   useEffect(() => {
-    const saved = localStorage.getItem("assignments");
-    if (saved) setAssignments(JSON.parse(saved));
+    const storedSubjects =
+    JSON.parse(localStorage.getItem("subjects")) || [];
+
+  const allAssignments = storedSubjects.flatMap((subject) =>
+    (subject.assignments || []).map((assignment) => ({
+      ...assignment,
+      subject: subject.name
+    }))
+  );
+
+  setAssignments(allAssignments);
   }, []);
 
   const submitted = assignments.filter((a) => a.submissions?.some((s) => s.student === studentEmail));
@@ -122,7 +136,7 @@ const average =
                         <div className="progress-bar">
                           <div className="progress-fill" style={{ width: `${a.progress || 0}%`, backgroundColor: getStatusColor(a.status) }}></div>
                         </div>
-                        <span className="progress-text">{a.progress || 0}% complete</span>
+                        <span className="progress-text">{a.progress || 0}%marks</span>
                       </div>
                     </div>
                   ))}
@@ -133,6 +147,21 @@ const average =
             {/* Right Side Column */}
             <aside className="right-col">
               <div className="performance-card">
+                {/* Subjects Card */}
+<div className="subjects-card">
+  <h3>📚 Subjects</h3>
+
+  {subjects.length === 0 ? (
+    <p className="empty-msg">No subjects available</p>
+  ) : (
+    
+    subjects.map((sub) => (
+  <div key={sub.id} className="subject-item">
+    {sub.name}
+  </div>
+))
+  )}
+</div>
                 <div className="perf-header">
                   <span>📈 Performance</span>
                 </div>

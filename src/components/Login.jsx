@@ -20,7 +20,7 @@ function Login() {
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
     if (isSignUp) {
-      // SIGN UP LOGIC
+      // SIGN UP
       const userExists = users.find((u) => u.email === email);
       if (userExists) {
         alert("User already exists");
@@ -34,7 +34,7 @@ function Login() {
       return;
     }
 
-    // SIGN IN LOGIC
+    // SIGN IN
     const user = users.find(
       (u) => u.email === email && u.password === password && u.role === role
     );
@@ -47,7 +47,14 @@ function Login() {
     localStorage.setItem("loggedInUser", email);
     localStorage.setItem("role", role);
 
-    window.location.href = role === "student" ? "/student" : "/teacher";
+    // ✅ Proper Navigation
+    if (role === "student") {
+      navigate("/student");
+    } else if (role === "teacher") {
+      navigate("/teacher");
+    } else if (role === "admin") {
+      navigate("/admin");
+    }
   };
 
   return (
@@ -73,11 +80,20 @@ function Login() {
           >
             Student
           </button>
+
           <button
             className={role === "teacher" ? "active" : ""}
             onClick={() => setRole("teacher")}
           >
             Teacher
+          </button>
+
+          {/* ✅ ADMIN BUTTON ADDED */}
+          <button
+            className={role === "admin" ? "active" : ""}
+            onClick={() => setRole("admin")}
+          >
+            Admin
           </button>
         </div>
 

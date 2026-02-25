@@ -216,3 +216,22 @@
   flex-direction: column;
   gap: 24px;
 }
+.subjects-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.subjects-card h3 {
+  margin-bottom: 10px;
+}
+
+.subject-item {
+  padding: 8px 12px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}

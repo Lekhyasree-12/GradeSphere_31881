@@ -7,47 +7,114 @@ function StudentAssignments() {
   const [searchQuery, setSearchQuery] = useState("");
   const studentEmail = localStorage.getItem("loggedInUser");
 
+  // 🔥 Load assignments from subjects
   useEffect(() => {
-    const saved = localStorage.getItem("assignments");
-    if (saved) {
-      setAssignments(JSON.parse(saved));
-    }
-  }, []);
+  const loadAssignments = () => {
+    const storedSubjects =
+      JSON.parse(localStorage.getItem("subjects")) || [];
 
+    const allAssignments = storedSubjects.flatMap((subject) =>
+      (subject.assignments || []).map((assignment) => ({
+        ...assignment,
+        subject: subject.name,
+        subjectId: subject.id
+      }))
+    );
+
+    setAssignments(allAssignments);
+  };
+
+  loadAssignments();
+
+  // Listen for storage updates
+  window.addEventListener("storage", loadAssignments);
+
+  return () => {
+    window.removeEventListener("storage", loadAssignments);
+  };
+}, []);
+
+  // Determine assignment status
   const getStatus = (a) => {
-    const submitted = a.submissions?.some((s) => s.student === studentEmail);
+    const submitted = a.submissions?.some(
+      (s) => s.student === studentEmail
+    );
+
     if (submitted) return "Submitted";
-    const isOverdue = new Date(a.deadline) < new Date();
+
+    const isOverdue = new Date(a.deadline || a.dueDate) < new Date();
     return isOverdue ? "Overdue" : "Pending";
   };
 
-  const handleSubmit = (id) => {
-    if (!studentEmail) return alert("User not logged in.");
-    const updated = assignments.map((a) => {
-      if (a.id === id && !a.submissions.some(s => s.student === studentEmail)) {
-        return {
-          ...a,
-          submissions: [...a.submissions, { student: studentEmail, grade: null }]
-        };
+  // Submit assignment
+  const handleSubmit = (id, subjectId) => {
+    const storedSubjects =
+      JSON.parse(localStorage.getItem("subjects")) || [];
+
+    const updatedSubjects = storedSubjects.map((subject) => {
+      if (subject.id === subjectId) {
+        const updatedAssignments = subject.assignments.map((a) => {
+          if (
+            a.id === id &&
+            !a.submissions?.some(
+              (s) => s.student === studentEmail
+            )
+          ) {
+            return {
+              ...a,
+              submissions: [
+                ...(a.submissions || []),
+                { student: studentEmail, grade: null }
+              ]
+            };
+          }
+          return a;
+        });
+
+        return { ...subject, assignments: updatedAssignments };
       }
-      return a;
+      return subject;
     });
-    setAssignments(updated);
-    localStorage.setItem("assignments", JSON.stringify(updated));
+
+    localStorage.setItem(
+      "subjects",
+      JSON.stringify(updatedSubjects)
+    );
+
+    // Reload assignments after submit
+    const refreshedAssignments = updatedSubjects.flatMap((subject) =>
+      (subject.assignments || []).map((assignment) => ({
+        ...assignment,
+        subject: subject.name,
+        subjectId: subject.id
+      }))
+    );
+
+    setAssignments(refreshedAssignments);
   };
 
+  // Filtering
   const filteredAssignments = assignments.filter((a) => {
     const status = getStatus(a);
     const matchesFilter = filter === "All" || status === filter;
-    const matchesSearch = a.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = a.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
     return matchesFilter && matchesSearch;
   });
 
   const stats = {
     total: assignments.length,
-    pending: assignments.filter(a => getStatus(a) === "Pending").length,
-    submitted: assignments.filter(a => getStatus(a) === "Submitted").length,
-    overdue: assignments.filter(a => getStatus(a) === "Overdue").length,
+    pending: assignments.filter(
+      (a) => getStatus(a) === "Pending"
+    ).length,
+    submitted: assignments.filter(
+      (a) => getStatus(a) === "Submitted"
+    ).length,
+    overdue: assignments.filter(
+      (a) => getStatus(a) === "Overdue"
+    ).length
   };
 
   return (
@@ -57,87 +124,70 @@ function StudentAssignments() {
         <p>View and manage all your course assignments</p>
       </header>
 
-      {/* Search and Filters */}
+      {/* Search & Filter */}
       <div className="controls-row">
-        <div className="search-wrapper">
-          <span className="search-icon">🔍</span>
-          <input 
-            type="text" 
-            placeholder="Search assignments..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="filter-buttons">
-          {["All", "Pending", "Submitted", "Overdue"].map((f) => (
-            <button 
-              key={f} 
-              className={filter === f ? "active" : ""} 
-              onClick={() => setFilter(f)}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+        <input
+          type="text"
+          placeholder="Search assignments..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
+        {["All", "Pending", "Submitted", "Overdue"].map((f) => (
+          <button
+            key={f}
+            className={filter === f ? "active" : ""}
+            onClick={() => setFilter(f)}
+          >
+            {f}
+          </button>
+        ))}
       </div>
 
-      {/* Stats Summary Cards */}
+      {/* Stats */}
       <div className="summary-stats">
-        <div className="summary-card blue">
-          <h3>{stats.total}</h3>
-          <p>Total Assignments</p>
-        </div>
-        <div className="summary-card orange">
-          <h3>{stats.pending}</h3>
-          <p>Pending</p>
-        </div>
-        <div className="summary-card green">
-          <h3>{stats.submitted}</h3>
-          <p>Submitted</p>
-        </div>
-        <div className="summary-card red">
-          <h3>{stats.overdue}</h3>
-          <p>Overdue</p>
-        </div>
+        <div>Total: {stats.total}</div>
+        <div>Pending: {stats.pending}</div>
+        <div>Submitted: {stats.submitted}</div>
+        <div>Overdue: {stats.overdue}</div>
       </div>
 
       {/* Assignment List */}
       <div className="assignment-list">
         {filteredAssignments.length === 0 ? (
-          <p className="no-data">No assignments found matching your criteria.</p>
+          <p>No assignments found.</p>
         ) : (
           filteredAssignments.map((a) => {
             const status = getStatus(a);
+
             return (
-              <div key={a.id} className="assignment-detail-card">
-                <div className="card-top">
-                  <div className="title-group">
-                    <h3>{a.title} <span className={`badge ${status.toLowerCase()}`}>{status}</span></h3>
-                    <p className="description">{a.description || "No description provided."}</p>
-                    <div className="metadata">
-                      <span><strong>Subject:</strong> {a.subject || "N/A"}</span>
-                      <span><strong>Teacher:</strong> {a.teacherName || "Instructor"}</span>
-                      <span><strong>Points:</strong> {a.points || "100"}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="card-footer">
-                  <div className="deadline-info">
-                    <span>📅 Due {a.deadline}</span>
-                    <span>📎 {a.attachments?.length || 0} attachments</span>
-                  </div>
-                  <div className="action-buttons">
-                    <button className="btn-secondary">View Details</button>
-                    <button 
-                      className="btn-primary" 
-                      disabled={status === "Submitted"}
-                      onClick={() => handleSubmit(a.id)}
-                    >
-                      {status === "Submitted" ? "Submitted" : "Submit"}
-                    </button>
-                  </div>
-                </div>
+              <div key={a.id} className="assignment-card">
+                <h3>
+                  {a.title}{" "}
+                  <span className={`badge ${status.toLowerCase()}`}>
+                    {status}
+                  </span>
+                </h3>
+
+                <p>{a.description}</p>
+
+                <p><strong>Subject:</strong> {a.subject}</p>
+                <p><strong>Points:</strong> {a.points}</p>
+                <p>
+                  <strong>Due:</strong>{" "}
+                  {a.deadline || a.dueDate}
+                </p>
+
+                <button
+                  disabled={status === "Submitted"}
+                  onClick={() =>
+                    handleSubmit(a.id, a.subjectId)
+                  }
+                >
+                  {status === "Submitted"
+                    ? "Submitted"
+                    : "Submit"}
+                </button>
               </div>
             );
           })

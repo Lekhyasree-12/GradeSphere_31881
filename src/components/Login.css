@@ -4,20 +4,9 @@
   background: linear-gradient(135deg, #2f5d62, #0b2e33);
   display: flex;
   justify-content: center;
-  align-items: flex-start;   /* changed from center */
-  padding-top: 120px;        /* pushes box down */
+  align-items: flex-start;
+  padding-top: 120px;
   position: relative;
-}
-
-/* Brand Top Left */
-/* Brand Top Left */
-.brand {
-  position: absolute;
-  top: 30px;
-  left: 40px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
 }
 
 /* Brand Top Left */
@@ -31,24 +20,23 @@
 }
 
 .brand img {
-  width: 60px;   /* increased size */
+  width: 60px;
   height: 60px;
   object-fit: contain;
 }
 
 .brand h2 {
-   font-size: 36px;
+  font-size: 36px;
   font-weight: 800;
   color: white;
   letter-spacing: 1px;
-  .brand h2 {
-  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
-}
+
 /* Login Card */
 .login-card {
   background: #f3f4f6;
-  width: 400px;
+  width: 420px;
   padding: 40px;
   border-radius: 20px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
@@ -86,6 +74,8 @@
   background: #e5e7eb;
   border-radius: 10px;
   overflow: hidden;
+  gap: 4px;   /* makes 3 buttons look clean */
+  padding: 4px;
 }
 
 .role-toggle button {
@@ -94,13 +84,20 @@
   border: none;
   background: transparent;
   cursor: pointer;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.role-toggle button:hover {
+  background: #d1d5db;
 }
 
 .role-toggle .active {
   background: #b8e3e9;
+  font-weight: 600;
 }
 
-/* Button */
+/* Login Button */
 .login-btn {
   width: 100%;
   margin-top: 20px;
@@ -111,6 +108,11 @@
   color: white;
   font-weight: 600;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.login-btn:hover {
+  background: #124047;
 }
 
 .signup-text {
@@ -121,4 +123,5 @@
 .signup-text span {
   font-weight: 600;
   cursor: pointer;
+  color: #0b2e33;
 }
