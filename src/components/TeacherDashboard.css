@@ -536,3 +536,93 @@
 .orange { background: #f97316; }
 .red { background: #ef4444; }
 .gray { background: #6b7280; }
+/* ===== INLINE GRADING SECTION ===== */
+
+.assignment-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: 0.2s ease;
+}
+
+.assignment-card:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+}
+
+/* Grade input */
+.assignment-card input[type="number"],
+.assignment-card input[type="text"] {
+  width: 120px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* Feedback textarea */
+.assignment-card textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  margin-top: 12px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Save button */
+.assignment-card button {
+  margin-top: 14px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent-teal);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.assignment-card button:hover {
+  background: #3c6a70;
+}
+
+/* Grade display styling */
+.assignment-card p strong {
+  color: var(--text-main);
+}
+.grade-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.grade-badge.graded {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.grade-badge.pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+.teacher-sidebar li {
+  padding: 10px 14px;
+}
+
+.teacher-sidebar li.active {
+  background-color: var(--accent-teal);
+}
+
+.teacher-sidebar ul > li:nth-child(2) {
+  margin-top: 15px;
+  font-size: 14px;
+  opacity: 0.8;
+  cursor: default;
+}

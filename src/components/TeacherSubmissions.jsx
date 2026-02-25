@@ -19,20 +19,29 @@ function TeacherSubmissions() {
     localStorage.setItem("assignments", JSON.stringify(updated));
   };
 
-  const handleGrade = (assignmentId, submissionIndex) => {
-    const updated = assignments.map((a) => {
-      if (a.id === assignmentId) {
-        const updatedSubs = [...a.submissions];
-        updatedSubs[submissionIndex].graded = true;
-        updatedSubs[submissionIndex].score = 95; // Example score
-        return { ...a, submissions: updatedSubs };
-      }
-      return a;
-    });
+  const handleGrade = (assignmentId, studentEmail, grade, feedback) => {
 
-    updateStorage(updated);
-  };
+  const updated = assignments.map((a) => {
+    if (a.id === assignmentId) {
+      return {
+        ...a,
+        submissions: a.submissions.map((s) =>
+          s.student === studentEmail
+            ? {
+                ...s,
+                score: Number(grade),   // IMPORTANT
+                feedback: feedback
+              }
+            : s
+        )
+      };
+    }
+    return a;
+  });
 
+  setAssignments(updated);
+  localStorage.setItem("assignments", JSON.stringify(updated));
+};
   const allSubmissions = assignments.flatMap((a) =>
     a.submissions.map((s, i) => ({
       ...s,
@@ -49,15 +58,15 @@ function TeacherSubmissions() {
 
     const matchesFilter =
       filter === "all" ||
-      (filter === "pending" && !s.graded) ||
-      (filter === "graded" && s.graded);
+      (filter === "pending" && s.score == null) ||
+(filter === "graded" && s.score != null);
 
     return matchesSearch && matchesFilter;
   });
 
   const total = allSubmissions.length;
-  const pending = allSubmissions.filter((s) => !s.graded).length;
-  const graded = allSubmissions.filter((s) => s.graded).length;
+const pending = allSubmissions.filter((s) => s.score == null).length;
+const graded = allSubmissions.filter((s) => s.score != null).length;
 
   return (
     <div className="submissions-container">
@@ -129,7 +138,7 @@ function TeacherSubmissions() {
                 </p>
               </div>
 
-              {!s.graded ? (
+              {s.score==null ? (
                 <span className="status-pill pending">
                   Pending
                 </span>
@@ -149,20 +158,18 @@ function TeacherSubmissions() {
                 Download
               </button>
 
-              {!s.graded ? (
-                <button
-                  className="grade-btn"
-                  onClick={() =>
-                    handleGrade(s.assignmentId, s.index)
-                  }
-                >
-                  Grade Now
-                </button>
-              ) : (
-                <div className="score-display">
-                  {s.score}
-                </div>
-              )}
+             {s.score == null ? (
+  <button
+  className="grade-btn"
+  onClick={() => setActiveTab("grades")}
+>
+  Grade Now
+</button>
+) : (
+  <div className="score-display">
+    {s.score}
+  </div>
+)}
             </div>
 
           </div>

@@ -2,46 +2,58 @@ import { useState, useEffect } from "react";
 import "./TeacherDashboard.css";
 
 function TeacherCreate() {
-  const [assignments, setAssignments] = useState(() => {
-    const saved = localStorage.getItem("assignments");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubjectId, setSelectedSubjectId] = useState("");
 
   const [title, setTitle] = useState("");
-  const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [points, setPoints] = useState(100);
   const [assignTo, setAssignTo] = useState("All Students");
 
+  // Load subjects
   useEffect(() => {
-    localStorage.setItem("assignments", JSON.stringify(assignments));
-  }, [assignments]);
+    const saved = localStorage.getItem("subjects");
+    if (saved) {
+      setSubjects(JSON.parse(saved));
+    }
+  }, []);
 
   const handlePublish = () => {
-    if (!title || !subject || !dueDate) {
+    if (!title || !selectedSubjectId || !dueDate) {
       alert("Please fill required fields");
       return;
     }
 
-    const newAssignment = {
-      id: Date.now(),
-      title,
-      subject,
-      description,
-      deadline: dueDate,
-      time: dueTime,
-      points,
-      assignTo,
-      submissions: []
-    };
+    const updatedSubjects = subjects.map((subject) => {
+      if (subject.id === Number(selectedSubjectId)) {
+        return {
+          ...subject,
+          assignments: [
+            ...subject.assignments,
+            {
+              id: Date.now(),
+              title,
+              description,
+              deadline: dueDate,
+              time: dueTime,
+              points,
+              assignTo,
+              submissions: []
+            }
+          ]
+        };
+      }
+      return subject;
+    });
 
-    setAssignments([...assignments, newAssignment]);
+    setSubjects(updatedSubjects);
+    localStorage.setItem("subjects", JSON.stringify(updatedSubjects));
 
     // Reset form
     setTitle("");
-    setSubject("");
+    setSelectedSubjectId("");
     setDescription("");
     setDueDate("");
     setDueTime("");
@@ -70,14 +82,15 @@ function TeacherCreate() {
 
         <label>Subject *</label>
         <select
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
+          value={selectedSubjectId}
+          onChange={(e) => setSelectedSubjectId(e.target.value)}
         >
           <option value="">Select a subject</option>
-          <option>Mathematics</option>
-          <option>English</option>
-          <option>Physics</option>
-          <option>Chemistry</option>
+          {subjects.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
         </select>
 
         <label>Description *</label>
@@ -124,7 +137,6 @@ function TeacherCreate() {
           <option>Section B</option>
         </select>
 
-        {/* Upload Box */}
         <div className="upload-box">
           <p>Click to upload or drag and drop</p>
           <small>PDF, DOC, DOCX up to 10MB</small>
@@ -147,7 +159,10 @@ function TeacherCreate() {
         <div className="preview-card">
           <h3>Assignment Preview</h3>
           <p><strong>Title:</strong> {title || "No title yet"}</p>
-          <p><strong>Subject:</strong> {subject || "No subject selected"}</p>
+          <p>
+            <strong>Subject:</strong>{" "}
+            {subjects.find(s => s.id === Number(selectedSubjectId))?.name || "No subject selected"}
+          </p>
           <p><strong>Due Date:</strong> {dueDate || "No date set"}</p>
           <p><strong>Points:</strong> {points} points</p>
         </div>
@@ -164,9 +179,14 @@ function TeacherCreate() {
 
         <div className="stats-card">
           <h3>Your Stats</h3>
-          <p>Active Assignments: {assignments.length}</p>
-          <p>Total Students: 45</p>
-          <p>Avg Completion: 92%</p>
+          <p>
+            Active Assignments:{" "}
+            {subjects.reduce(
+              (total, s) => total + s.assignments.length,
+              0
+            )}
+          </p>
+          <p>Total Subjects: {subjects.length}</p>
         </div>
 
       </div>

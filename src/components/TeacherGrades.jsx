@@ -4,18 +4,20 @@ import "./TeacherDashboard.css";
 function TeacherGrades() {
   const [assignments, setAssignments] = useState([]);
   const [search, setSearch] = useState("");
-
+const [gradeInputs, setGradeInputs] = useState({});
+const [feedbackInputs, setFeedbackInputs] = useState({});
   useEffect(() => {
     const saved = localStorage.getItem("assignments");
     if (saved) {
       setAssignments(JSON.parse(saved));
     }
   }, []);
+  
 
   // Collect all graded submissions
   const students = assignments.flatMap((a) =>
     a.submissions
-      .filter((s) => s.score)
+      .filter((s) => s.score!=null)
       .map((s) => ({
         name: s.student,
         id: s.student?.slice(-4),
@@ -69,7 +71,29 @@ function TeacherGrades() {
     D: students.filter((s) => s.score >= 60 && s.score < 70).length,
     F: students.filter((s) => s.score < 60).length
   };
+const handleGrade = (assignmentId, studentEmail, grade, feedback) => {
 
+  const updated = assignments.map((a) => {
+    if (a.id === assignmentId) {
+      return {
+        ...a,
+        submissions: a.submissions.map((s) =>
+          s.student === studentEmail
+            ? {
+                ...s,
+                score: Number(grade),
+                feedback: feedback
+              }
+            : s
+        )
+      };
+    }
+    return a;
+  });
+
+  setAssignments(updated);
+  localStorage.setItem("assignments", JSON.stringify(updated));
+};
   return (
     <div className="grades-container">
 
@@ -77,6 +101,64 @@ function TeacherGrades() {
       <p className="sub-text">
         View and manage student grades
       </p>
+      {/* GRADING SECTION */}
+{assignments.length === 0 ? (
+  <p>No assignments available.</p>
+) : assignments.every(a => a.submissions.length === 0) ? (
+  <p>No student submissions available to grade.</p>
+) : (
+  assignments.map((a) =>
+    a.submissions.map((s) => (
+      <div key={a.id + s.student} className="assignment-card">
+
+        <p><strong>Assignment:</strong> {a.title}</p>
+        <p><strong>Student:</strong> {s.student}</p>
+<span className={`grade-badge ${s.score != null ? "graded" : "pending"}`}>
+  {s.score != null ? "Graded" : "Pending"}
+</span>
+        <input
+  type="number"
+  placeholder="Enter Grade"
+  value={gradeInputs[`${a.id}-${s.student}`] || ""}
+  onChange={(e) =>
+    setGradeInputs({
+      ...gradeInputs,
+      [`${a.id}-${s.student}`]: e.target.value
+    })
+  }
+/>
+
+<textarea
+  placeholder="Write feedback..."
+  value={feedbackInputs[`${a.id}-${s.student}`] || ""}
+  onChange={(e) =>
+    setFeedbackInputs({
+      ...feedbackInputs,
+      [`${a.id}-${s.student}`]: e.target.value
+    })
+  }
+  rows="3"
+/>
+
+<button
+  onClick={() =>
+    handleGrade(
+      a.id,
+      s.student,
+      gradeInputs[`${a.id}-${s.student}`],
+      feedbackInputs[`${a.id}-${s.student}`]
+    )
+  }
+>
+  Save Grade
+</button>
+
+<p><strong>Current Grade:</strong> {s.score ?? "Not graded"}</p>
+<p><strong>Feedback:</strong> {s.feedback ?? "No feedback yet"}</p>
+      </div>
+    ))
+  )
+)}
 
       {/* CLASS OVERVIEW */}
       <div className="overview-card">
