@@ -7,11 +7,19 @@ function TeacherGrades() {
 const [gradeInputs, setGradeInputs] = useState({});
 const [feedbackInputs, setFeedbackInputs] = useState({});
   useEffect(() => {
-    const saved = localStorage.getItem("assignments");
-    if (saved) {
-      setAssignments(JSON.parse(saved));
-    }
-  }, []);
+  const storedSubjects =
+    JSON.parse(localStorage.getItem("subjects")) || [];
+
+  const allAssignments = storedSubjects.flatMap((subject) =>
+    (subject.assignments || []).map((assignment) => ({
+      ...assignment,
+      subject: subject.name,
+      subjectId: subject.id
+    }))
+  );
+
+  setAssignments(allAssignments);
+}, []);
   
 
   // Collect all graded submissions

@@ -6,12 +6,20 @@ function TeacherSubmissions() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    const saved = localStorage.getItem("assignments");
-    if (saved) {
-      setAssignments(JSON.parse(saved));
-    }
-  }, []);
+useEffect(() => {
+  const storedSubjects =
+    JSON.parse(localStorage.getItem("subjects")) || [];
+
+  const allAssignments = storedSubjects.flatMap((subject) =>
+    (subject.assignments || []).map((assignment) => ({
+      ...assignment,
+      subject: subject.name,
+      subjectId: subject.id
+    }))
+  );
+
+  setAssignments(allAssignments);
+}, []);
 
   // Save changes when grading
   const updateStorage = (updated) => {
