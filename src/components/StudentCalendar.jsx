@@ -3,13 +3,14 @@ import "./StudentCalendar.css";
 
 function StudentCalendar() {
   const [assignments, setAssignments] = useState([]);
-  const [currentDate] = useState(new Date("2026-02-24"));
+
+  // Start from Jan 2026
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1));
 
   useEffect(() => {
     const storedSubjects =
       JSON.parse(localStorage.getItem("subjects")) || [];
 
-    // Extract assignments from subjects
     const allAssignments = storedSubjects.flatMap((subject) =>
       (subject.assignments || []).map((assignment) => ({
         ...assignment,
@@ -20,13 +21,78 @@ function StudentCalendar() {
     setAssignments(allAssignments);
   }, []);
 
-  const getDayFromDate = (dateString) => {
-    if (!dateString) return null;
-    return new Date(dateString).getDate();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const monthName = currentDate.toLocaleString("default", {
+    month: "long"
+  });
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+
+  const today = new Date();
+  const isCurrentMonth =
+    today.getFullYear() === year &&
+    today.getMonth() === month;
+
+  const getAssignmentsForDay = (day) => {
+    return assignments.filter((a) => {
+      const date = new Date(a.deadline || a.dueDate);
+      return (
+        date.getFullYear() === year &&
+        date.getMonth() === month &&
+        date.getDate() === day
+      );
+    });
   };
 
-  const daysInMonth = Array.from({ length: 28 }, (_, i) => i + 1);
-  const todayDate = 24;
+  const goToPreviousMonth = () => {
+    if (month > 0) {
+      setCurrentDate(new Date(year, month - 1, 1));
+    }
+  };
+
+  const goToNextMonth = () => {
+    if (month < 11) {
+      setCurrentDate(new Date(year, month + 1, 1));
+    }
+  };
+
+  const calendarDays = [];
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    calendarDays.push(<div key={`empty-${i}`} className="day-cell empty"></div>);
+  }
+
+  // Actual days
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayAssignments = getAssignmentsForDay(day);
+
+    calendarDays.push(
+      <div
+        key={day}
+        className={`day-cell ${
+          isCurrentMonth && today.getDate() === day ? "today" : ""
+        }`}
+      >
+        <span className="day-number">{day}</span>
+
+        <div className="day-events">
+          {dayAssignments.map((a) => (
+            <div
+              key={a.id}
+              className="event-pill"
+              style={{ backgroundColor: "#3b82f6" }}
+            >
+              {a.title}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="calendar-page">
@@ -39,7 +105,11 @@ function StudentCalendar() {
         <section className="calendar-main">
           <div className="calendar-card">
             <div className="calendar-nav">
-              <h2>February 2026</h2>
+              <button onClick={goToPreviousMonth}>◀</button>
+              <h2>
+                {monthName} {year}
+              </h2>
+              <button onClick={goToNextMonth}>▶</button>
             </div>
 
             <div className="weekday-header">
@@ -49,118 +119,10 @@ function StudentCalendar() {
             </div>
 
             <div className="calendar-grid">
-              {daysInMonth.map((day) => (
-                <div
-                  key={day}
-                  className={`day-cell ${
-                    day === todayDate ? "today" : ""
-                  }`}
-                >
-                  <span className="day-number">{day}</span>
-
-                  <div className="day-events">
-                    {assignments
-                      .filter(
-                        (a) =>
-                          getDayFromDate(
-                            a.deadline || a.dueDate
-                          ) === day
-                      )
-                      .map((a) => (
-                        <div
-                          key={a.id}
-                          className="event-pill"
-                          style={{ backgroundColor: "#3b82f6" }}
-                        >
-                          {a.title}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              ))}
+              {calendarDays}
             </div>
           </div>
         </section>
-
-        <aside className="calendar-sidebar">
-          <div className="side-card">
-            <h3>Today's Deadlines</h3>
-
-            {assignments.filter(
-              (a) =>
-                getDayFromDate(a.deadline || a.dueDate) ===
-                todayDate
-            ).length > 0 ? (
-              assignments
-                .filter(
-                  (a) =>
-                    getDayFromDate(
-                      a.deadline || a.dueDate
-                    ) === todayDate
-                )
-                .map((a) => (
-                  <div key={a.id} className="today-item">
-                    <div
-                      className="item-icon"
-                      style={{ color: "#3b82f6" }}
-                    >
-                      📅
-                    </div>
-                    <div className="item-info">
-                      <strong>{a.title}</strong>
-                      <span>Due Today</span>
-                    </div>
-                  </div>
-                ))
-            ) : (
-              <p className="no-events">
-                No deadlines today
-              </p>
-            )}
-          </div>
-
-          <div className="side-card">
-            <h3>Upcoming Deadlines</h3>
-
-            <div className="upcoming-list">
-              {assignments.length > 0 ? (
-                assignments
-                  .filter(
-                    (a) =>
-                      getDayFromDate(
-                        a.deadline || a.dueDate
-                      ) > todayDate
-                  )
-                  .map((a) => (
-                    <div
-                      key={a.id}
-                      className="upcoming-row"
-                    >
-                      <div className="date-box">
-                        <span>Feb</span>
-                        <strong>
-                          {getDayFromDate(
-                            a.deadline || a.dueDate
-                          )}
-                        </strong>
-                      </div>
-
-                      <div className="event-detail">
-                        <strong>{a.title}</strong>
-                        <span>
-                          {a.subject || "General"}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-              ) : (
-                <p className="no-events">
-                  No upcoming assignments
-                </p>
-              )}
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   );
