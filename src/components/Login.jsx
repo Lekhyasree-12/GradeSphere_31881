@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import logo from "./logo.png";
 
-function Login() {
+function Login({ setRole }) {
   const navigate = useNavigate();
 
-  const [role, setRole] = useState("student");
+  const [selectedRole, setSelectedRole] = useState("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
@@ -19,46 +19,53 @@ function Login() {
 
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
-   if (isSignUp) {
-  const userExists = users.find((u) => u.email === email);
-  if (userExists) {
-    alert("User already exists");
-    return;
-  }
+    // ================= SIGN UP =================
+    if (isSignUp) {
+      const userExists = users.find((u) => u.email === email);
+      if (userExists) {
+        alert("User already exists");
+        return;
+      }
 
-  const newUser = { email, password, role };
-  const updatedUsers = [...users, newUser];
+      const newUser = {
+        email,
+        password,
+        role: selectedRole,
+      };
 
-  localStorage.setItem("users", JSON.stringify(updatedUsers));
+      const updatedUsers = [...users, newUser];
+      localStorage.setItem("users", JSON.stringify(updatedUsers));
 
-  // 🔥 Auto Login After Signup
-  localStorage.setItem("loggedInUser", email);
-  localStorage.setItem("role", role);
+      localStorage.setItem("loggedInUser", email);
+      localStorage.setItem("role", selectedRole);
 
-  alert("Account created successfully!");
+      // 🔥 Update App state immediately
+      setRole(selectedRole);
 
-  // Navigate immediately
- navigate(`/${role}`, { state: { role } });
+      navigate(`/${selectedRole}`);
+      return;
+    }
 
-  return;
-}
+    // ================= SIGN IN =================
+    const user = users.find(
+      (u) =>
+        u.email === email &&
+        u.password === password &&
+        u.role === selectedRole
+    );
 
-    // SIGN IN
-    // SIGN IN
-const user = users.find(
-  (u) => u.email === email && u.password === password && u.role === role
-);
+    if (!user) {
+      alert("Invalid credentials");
+      return;
+    }
 
-if (!user) {
-  alert("Invalid credentials");
-  return;
-}
+    localStorage.setItem("loggedInUser", email);
+    localStorage.setItem("role", selectedRole);
 
-localStorage.setItem("loggedInUser", email);
-localStorage.setItem("role", role);
+    // 🔥 Update App state immediately
+    setRole(selectedRole);
 
-// ✅ Force React Router to re-evaluate routes properly
-navigate(`/${role}`, { state: { role } });
+    navigate(`/${selectedRole}`);
   };
 
   return (
@@ -79,23 +86,25 @@ navigate(`/${role}`, { state: { role } });
         <label>I am a:</label>
         <div className="role-toggle">
           <button
-            className={role === "student" ? "active" : ""}
-            onClick={() => setRole("student")}
+            type="button"
+            className={selectedRole === "student" ? "active" : ""}
+            onClick={() => setSelectedRole("student")}
           >
             Student
           </button>
 
           <button
-            className={role === "teacher" ? "active" : ""}
-            onClick={() => setRole("teacher")}
+            type="button"
+            className={selectedRole === "teacher" ? "active" : ""}
+            onClick={() => setSelectedRole("teacher")}
           >
             Teacher
           </button>
 
-          {/* ✅ ADMIN BUTTON ADDED */}
           <button
-            className={role === "admin" ? "active" : ""}
-            onClick={() => setRole("admin")}
+            type="button"
+            className={selectedRole === "admin" ? "active" : ""}
+            onClick={() => setSelectedRole("admin")}
           >
             Admin
           </button>
@@ -117,12 +126,18 @@ navigate(`/${role}`, { state: { role } });
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="login-btn" onClick={handleAuth}>
+        <button
+          type="button"
+          className="login-btn"
+          onClick={handleAuth}
+        >
           {isSignUp ? "Create Account" : "Sign In"}
         </button>
 
         <p className="signup-text">
-          {isSignUp ? "Already have an account?" : "Don't have an account?"}
+          {isSignUp
+            ? "Already have an account?"
+            : "Don't have an account?"}
           <span onClick={() => setIsSignUp(!isSignUp)}>
             {isSignUp ? " Sign In" : " Sign Up"}
           </span>
