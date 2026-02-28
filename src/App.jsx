@@ -13,23 +13,17 @@ function App() {
 
       <Route
         path="/student"
-        element={
-          role === "student" ? <StudentDashboard /> : <Navigate to="/" />
-        }
+        element={role === "student" ? <StudentDashboard /> : <Navigate to="/" />}
       />
 
       <Route
         path="/teacher"
-        element={
-          role === "teacher" ? <TeacherDashboard /> : <Navigate to="/" />
-        }
+        element={role === "teacher" ? <TeacherDashboard /> : <Navigate to="/" />}
       />
 
       <Route
         path="/admin"
-        element={
-          role === "admin" ? <AdminDashboard /> : <Navigate to="/" />
-        }
+        element={role === "admin" ? <AdminDashboard /> : <Navigate to="/" />}
       />
     </Routes>
   );

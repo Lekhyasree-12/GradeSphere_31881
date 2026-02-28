@@ -19,42 +19,46 @@ function Login() {
 
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    if (isSignUp) {
-      // SIGN UP
-      const userExists = users.find((u) => u.email === email);
-      if (userExists) {
-        alert("User already exists");
-        return;
-      }
+   if (isSignUp) {
+  const userExists = users.find((u) => u.email === email);
+  if (userExists) {
+    alert("User already exists");
+    return;
+  }
 
-      const newUser = { email, password, role };
-      localStorage.setItem("users", JSON.stringify([...users, newUser]));
-      alert("Account created successfully! Please sign in.");
-      setIsSignUp(false);
-      return;
-    }
+  const newUser = { email, password, role };
+  const updatedUsers = [...users, newUser];
+
+  localStorage.setItem("users", JSON.stringify(updatedUsers));
+
+  // 🔥 Auto Login After Signup
+  localStorage.setItem("loggedInUser", email);
+  localStorage.setItem("role", role);
+
+  alert("Account created successfully!");
+
+  // Navigate immediately
+ navigate(`/${role}`, { state: { role } });
+
+  return;
+}
 
     // SIGN IN
-    const user = users.find(
-      (u) => u.email === email && u.password === password && u.role === role
-    );
+    // SIGN IN
+const user = users.find(
+  (u) => u.email === email && u.password === password && u.role === role
+);
 
-    if (!user) {
-      alert("Invalid credentials");
-      return;
-    }
+if (!user) {
+  alert("Invalid credentials");
+  return;
+}
 
-    localStorage.setItem("loggedInUser", email);
-    localStorage.setItem("role", role);
+localStorage.setItem("loggedInUser", email);
+localStorage.setItem("role", role);
 
-    // ✅ Proper Navigation
-    if (role === "student") {
-      navigate("/student");
-    } else if (role === "teacher") {
-      navigate("/teacher");
-    } else if (role === "admin") {
-      navigate("/admin");
-    }
+// ✅ Force React Router to re-evaluate routes properly
+navigate(`/${role}`, { state: { role } });
   };
 
   return (
